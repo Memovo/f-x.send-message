@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>丰采</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, .65);
+        }
+
+        .form {
+            width: 800px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 200px auto;
+        }
+
+        .form input {
+            outline: none;
+            height: 40px;
+            width: 300px;
+            text-indent: 10px;
+            margin-left: 10px;
+        }
+
+        .form button {
+            height: 40px;
+            padding: 0 10px;
+            cursor: pointer;
+        }
+
+        .temp {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: aliceblue;
+        }
+
+        .form button,
+        input {
+            border-radius: 5px;
+            border: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="form">
+            <div class="temp">
+                姓名: <input type="text" placeholder="请输入姓名" id="name">
+            </div>
+            <div class="temp">
+                电话: <input type="text" placeholder="请输入电话" id="phone">
+            </div>
+            <button id="btn">立即发送</button>
+        </div>
+    </div>
+</body>
+<script>
+    // 函数防抖
+    function debounce(func, wait = 1000, immediate = true) {
+        let timer;
+        return function () {
+            let context = this,
+                args = arguments;
+            if (timer) clearTimeout(timer);
+            if (immediate) {
+                let callNow = !timer;
+                timer = setTimeout(() => {
+                    timer = null;
+                }, wait);
+                if (callNow) func.apply(context, args);
+            } else {
+                timer = setTimeout(() => {
+                    func.apply(context, args);
+                }, wait)
+            }
+        }
+    }
+
+    const name = document.getElementById('name')
+    const phone = document.getElementById('phone')
+    const btn = document.getElementById('btn')
+    btn.addEventListener('click', debounce(sub), false)
+    function sub() {
+        const names = name.value.replace(/\s*/g,"")
+        const phones = phone.value.replace(/\s*/g,"")
+        if (!names.length || !phones.length) {
+            alert('请检查姓名或手机号是否为空！！！')
+            return false
+        }
+        const xmlhttp = new XMLHttpRequest()
+        xmlhttp.open("get", `http://myip.wemap.info:8082/gw/sendSMS?name=${name.value}&phone=${phone.value}`, true)
+        xmlhttp.send()
+        xmlhttp.onreadystatechange = () => {
+            if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
+                name.value = ''
+                phone.value = ''
+                alert('信息已发送成功，请注意查收！')
+                return false
+            }
+        }
+    }
+</script>
+
+</html>
