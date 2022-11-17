@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>丰采</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+            }
+
+            .container {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.65);
+            }
+
+            .form {
+                width: calc(100% - 400px);
+                display: flex;
+                justify-content: space-around;
+                align-items: center;
+                margin: 200px auto;
+            }
+
+            .form input,
+            select {
+                outline: none;
+                height: 40px;
+                width: 300px;
+                text-indent: 10px;
+                margin-left: 10px;
+            }
+
+            .form button {
+                height: 40px;
+                padding: 0 10px;
+                cursor: pointer;
+            }
+
+            .temp {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                color: aliceblue;
+            }
+
+            .form button,
+            input,
+            select {
+                border-radius: 5px;
+                border: none;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="container">
+            <div class="form" method="post">
+                <label class="temp">
+                    账号:
+                    <input type="text" placeholder="请输入账号" id="account" />
+                </label>
+                <label class="temp">
+                    密码:
+                    <input
+                        type="password"
+                        placeholder="请输入密码"
+                        id="password"
+                    />
+                </label>
+                <label class="temp">
+                    电话:
+                    <input type="text" placeholder="请输入电话" id="phone" />
+                </label>
+                <label class="temp">
+                    类型:
+                    <select id="select" placeholder="请选择类型">
+                        <option>总协调账号</option>
+                        <option>总调度账号</option>
+                    </select>
+                </label>
+                <button id="btn">立即发送</button>
+            </div>
+        </div>
+    </body>
+    <script>
+        function debounce(func, wait = 1000, immediate = true) {
+            let timer;
+            return function() {
+                let context = this,
+                    args = arguments;
+                if (timer) clearTimeout(timer);
+                if (immediate) {
+                    let callNow = !timer;
+                    timer = setTimeout(() => {
+                        timer = null;
+                    }, wait);
+                    if (callNow) func.apply(context, args);
+                } else {
+                    timer = setTimeout(() => {
+                        func.apply(context, args);
+                    }, wait);
+                }
+            };
+        }
+
+        const map = {
+            总协调账号: 1,
+            总调度账号: 2
+        };
+
+        const account = document.getElementById("account");
+        const phone = document.getElementById("phone");
+        const password = document.getElementById("password");
+        const select = document.getElementById("select");
+        const btn = document.getElementById("btn");
+
+        btn.addEventListener("click", debounce(sub), false);
+
+        function sub() {
+            const accounts = account.value.replace(/\s*/g, "");
+            const passwords = password.value.replace(/\s*/g, "");
+            const phones = phone.value.replace(/\s*/g, "");
+            let str = "";
+            switch (!0) {
+                case !accounts.length:
+                    str = "账号";
+                    break;
+                case !passwords.length:
+                    str = "密码";
+                    break;
+                case !phones.length:
+                    str = "手机号";
+                    break;
+                default:
+                    str = "";
+                    break;
+            }
+
+            if (str.length) {
+                return alert(`${str}不可为空！！！`);
+            }
+
+            const params = `?phone=${phone.value}&content1=${
+                account.value
+            }&content2=${password.value}&type=${map[select.value]}`;
+
+            const xmlhttp = new XMLHttpRequest();
+
+            xmlhttp.open(
+                "post",
+                "https://go-zjqy-14382-5-1308307270.sh.run.tcloudbase.com/SmsSend",
+                true
+            );
+
+            xmlhttp.send(params);
+
+            xmlhttp.onreadystatechange = () => {
+                if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
+                    phone.value = "";
+                    account.value = "";
+                    password.value = "";
+                    alert("信息已发送成功，请注意查收！");
+                }
+            };
+        }
+    </script>
+</html>
